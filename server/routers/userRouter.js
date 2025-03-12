@@ -7,5 +7,6 @@ const userRouter = new Router();
 
 userRouter.post('/login', UserController.login)
 userRouter.post('/register', RoleMiddleware(['ADMIN']), AuthMiddleware, UserController.register)
+userRouter.get('/check', AuthMiddleware, UserController.check)
 
 module.exports = userRouter;

@@ -1,17 +1,34 @@
-import React from "react";
-import { BrowserRouter } from "react-router-dom";
+import React, { useContext, useEffect, useState } from "react";
+import { BrowserRouter, data } from "react-router-dom";
 import AppRouter from "./components/Router/AppRouter";
 import NavTemplate from "./components/template/NavBar";
+import { observer } from "mobx-react-lite";
+import { Context } from ".";
+import { check } from "./http/userAPI";
+import Spinner from 'react-bootstrap/Spinner';
 
-function App() {
+const App = observer(() => {
+  const {user} = useContext(Context);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    check().then(data => {
+      user.setUser(true);
+      user.setIsAuth(true);
+    }).finally(()=>{ setLoading(false) })
+  },[])
+
+  if (loading) {
+    return <Spinner animation="border" />;
+  }
+
   return (
     <div className="App">
       <BrowserRouter>
-        <NavTemplate/>
         <AppRouter/>
       </BrowserRouter>
     </div>
   );
-}
+})
 
 export default App;

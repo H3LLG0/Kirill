@@ -14,7 +14,7 @@ class UserController {
             const user = await User.findOne({where: {login:login}});
             if(user != null) {
                 if(bcrypt.hashSync(password, process.env.CRYPT_SALT) === user.password) {
-                    const token = TokenService.generateAccessToken(user.dataValues);
+                    const token = TokenService.generateAccessToken({id:user.dataValues.id, login:user.dataValues.login, type:user.dataValues.type});
                     res.clearCookie();
                     res.cookie('token', token, {
                         maxAge:3600*24,
@@ -52,12 +52,19 @@ class UserController {
         }
     }
 
-    async logout(req, res, next) {
+    async check(req, res, next) {
         try {
-            res.clearCookie();
-            res.status(401).json({message:"Пользователь не авторизирован"});
+            const tokenOld = req.headers.authorization.split(' ')[1];
+            const user = jwt.decode(tokenOld);
+            const tokenNew = TokenService.generateAccessToken({id:user.id, login:user.login, type:user.type});
+                    res.clearCookie();
+                    res.cookie('token', tokenNew, {
+                        maxAge:3600*24,
+                        HttpOnle:true,
+                    })
+                    res.status(200).json({token: tokenNew});
         } catch(e) {
-            next(e)
+            console.log(e)
         }
     }
 
