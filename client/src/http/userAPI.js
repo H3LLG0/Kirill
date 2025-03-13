@@ -9,9 +9,7 @@ export const getLogin = async (login, password) => {
 }
 
 export const check = async() => {
-    const {data} = await $authHost.get('user/check',{headers: {
-        'Authorization': `${localStorage.getItem('token')}`
-    }});
+    const {data} = await $authHost.get('user/check');
     localStorage.setItem('token', data.token);
     return jwtDecode(data.token);
 }

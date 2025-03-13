@@ -1,19 +1,21 @@
 import React, { useContext } from "react";
 import { Route, Routes} from 'react-router-dom';
 import { Context } from "../../index";
-import Admin from "../../pages/Admin";
-import Adduser from "../../pages/Adduser";
-import { ADDUSER_ROUTE, ADMIN_ROUTE, LOGIN_ROUTE, QUIZLIST_ROUTE } from "../../utils/consts";
+import { authRoutes, publicRoutes } from "../Router/routes"
 import Auth from "../../pages/Auth";
-import Quizlist from "../../pages/quizlist";
-import Quiz from "../../pages/Quiz";
+
 
 const AppRouter = () => {
     const {user} = useContext(Context)
     return(
         <Routes>
-            <Route path={LOGIN_ROUTE} element={<Auth/>}/>
-            <Route path={QUIZLIST_ROUTE} element={<Quizlist/>}/>
+            {
+               user.isAuth === true && authRoutes.map(({path, Component}) => <Route key={path} path={path} element={<Component/>}/>)
+            }
+            {
+                publicRoutes.map(({path, Component}) => <Route key={path} path={path} element={<Component/>}/>)
+            }
+            <Route path="*" element={<Auth/>}/>
         </Routes>
     );
 }

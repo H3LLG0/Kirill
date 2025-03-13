@@ -6,12 +6,14 @@ module.exports = function(req, res, next) {
     }
     try {
         const token = req.headers.authorization.split(' ')[1];
-        if(!token) {
+        if(token === "null") {
             return res.status(401).json({message:'пользователь не авторизован'})
         }
-        const decodedData = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decodedData;
-        next();
+        else {
+            const decodedData = jwt.verify(token, process.env.JWT_SECRET);
+            req.user = decodedData;
+            next();
+        }
     } catch(e) {
         console.log(e);
         res.status(401).json({message:"пользователь не авторизован"})
