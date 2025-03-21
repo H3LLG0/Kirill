@@ -1,12 +1,13 @@
 import React from "react";
 import  NavTemplate  from "../components/template/NavBar"
 
-const Admin = () => {
+const UserProfile = () => {
     return(
         <div>
             <NavTemplate/>
+            профиль
         </div>
     );
 }
 
-export default Admin;
+export default UserProfile;

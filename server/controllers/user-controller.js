@@ -14,7 +14,13 @@ class UserController {
             const user = await User.findOne({where: {login:login}});
             if(user != null) {
                 if(bcrypt.hashSync(password, process.env.CRYPT_SALT) === user.password) {
-                    const token = TokenService.generateAccessToken({id:user.dataValues.id, login:user.dataValues.login, type:user.dataValues.type});
+                    const token = TokenService.generateAccessToken({
+                        name:user.dataValues.name,
+                        surname:user.dataValues.surname,
+                        email:user.dataValues.email,
+                        login:user.dataValues.login,
+                        password:user.dataValues.password,
+                        type:user.dataValues.type});
                     res.clearCookie();
                     res.cookie('token', token, {
                         maxAge:3600*24,
@@ -56,7 +62,15 @@ class UserController {
         try {
             const tokenOld = req.headers.authorization.split(' ')[1];
             const user = jwt.decode(tokenOld);
-            const tokenNew = TokenService.generateAccessToken({id:user.id, login:user.login, type:user.type});
+            const tokenNew = TokenService.generateAccessToken({
+                id:user.id,
+                name:user.name,
+                surname:user.surname,
+                email:user.email,
+                login:user.login,
+                password:user.password,
+                type:user.type
+            });
                     res.clearCookie();
                     res.cookie('token', tokenNew, {
                         maxAge:3600*24,

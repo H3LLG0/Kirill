@@ -23,7 +23,7 @@ const Auth = observer(() => {
             } else {
                 let data;
                 data = await getLogin(login, password)
-                user.setUser(user);
+                user.setUser(data);
                 user.setIsAuth(true);
                 navigate(QUIZLIST_ROUTE)
             }

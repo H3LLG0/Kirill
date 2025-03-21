@@ -6,7 +6,8 @@ module.exports = function(roles) {
             next();
         }
         try {
-            const token = req.headers.authorization.split(' ')[2];
+            const token = req.headers.authorization.split(' ')[1];
+            console.log(token)
             const user = jwt.verify(token, process.env.JWT_SECRET);
             let hashRole = false;
             roles.forEach(element => {
