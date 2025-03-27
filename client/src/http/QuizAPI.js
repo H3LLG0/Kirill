@@ -11,3 +11,9 @@ export const GetOneQuiz = async (id) => {
 
     return data;
 }
+
+export const SaveQuizChanges = async (quiz) => {
+    const {message} = await $authHost.post('quiz/SaveQuizChanges', quiz)
+    
+    return message;
+}

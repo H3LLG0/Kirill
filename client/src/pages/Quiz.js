@@ -1,4 +1,4 @@
-import { GetOneQuiz } from "../http/QuizAPI";
+import { GetOneQuiz, SaveQuizChanges } from "../http/QuizAPI";
 import React, { useContext, useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import  NavTemplate  from "../components/template/NavBar";
@@ -14,6 +14,7 @@ const QuizComponent = observer(() => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { id } = useParams();
+    const [userAnswers, setUserAnswers] = useState({});
 
     useEffect(() => {
         setLoading(true);
@@ -130,6 +131,47 @@ const QuizComponent = observer(() => {
                 });
             };
 
+            const handleCheckboxChange = (questionId, variantId, checked) => {
+              setUserAnswers((prev) => {
+                const questionAnswers = prev[questionId] || [];
+                if (checked) {
+                  // Добавляем вариант ответа, если он выбран
+                  return {
+                    ...prev,
+                    [questionId]: [...questionAnswers, variantId]
+                  };
+                } else {
+                  // Удаляем вариант ответа, если он снят
+                  return {
+                    ...prev,
+                    [questionId]: questionAnswers.filter((id) => id !== variantId)
+                  };
+                }
+              });
+            };
+          
+            // Обработчик для radio (один выбор)
+            const handleRadioChange = (questionId, variantId) => {
+              setUserAnswers((prev) => ({
+                ...prev,
+                [questionId]: variantId
+              }));
+            };
+          
+            // Обработчик для range (значение ползунка)
+            const handleRangeChange = (questionId, value) => {
+              setUserAnswers((prev) => ({
+                ...prev,
+                [questionId]: value
+              }));
+            };
+          
+            // Обработчик отправки формы (вне режима редактирования)
+            const handleSubmit = (e) => {
+              e.preventDefault();
+              console.log("Ответы пользователя:", userAnswers);
+              // Здесь вы можете отправить данные на сервер или обработать их иным способом
+            };
 
           return (
             <div>
@@ -295,6 +337,13 @@ const QuizComponent = observer(() => {
                                       id={`checkbox-${variant.id}`}
                                       label={variant.answer}
                                       name={`question-${question.id}`}
+                                      onChange={(e) =>
+                                        handleCheckboxChange(
+                                          question.id,
+                                          variant.id,
+                                          e.target.checked
+                                        )
+                                      }
                                     />
                                   ))
                                 ) : question.type === "radio" ? (
@@ -305,6 +354,9 @@ const QuizComponent = observer(() => {
                                       id={`radio-${variant.id}`}
                                       label={variant.answer}
                                       name={`question-${question.id}`}
+                                      onChange={() =>
+                                        handleRadioChange(question.id, variant.id)
+                                      }
                                     />
                                   ))
                                 ) : question.type === "range" ? (
@@ -330,6 +382,9 @@ const QuizComponent = observer(() => {
                                           10
                                         )}
                                         name={`question-${question.id}`}
+                                        onChange={(e) => {
+                                          handleRangeChange(question.id, e.target.value);
+                                        }}
                                       />
                                     </Form.Group>
                                   ) : (
@@ -352,9 +407,27 @@ const QuizComponent = observer(() => {
                     <div>
                         {isEditing ? (<Button onClick={handleAddQuestion}>Добавить вопрос</Button>) : (<div></div>)}
                     </div>
-                    <Button className="mt-3" type="submit">
-                    {isEditing ? 'Сохранить изменения' : 'Отправить'}
-                    </Button>
+                    {
+                      isEditing ? (
+                        <Button
+                          type="submit"
+                          className="mt-3"
+                          variant="success"
+                          onClick={() => {
+                            SaveQuizChanges(quiz);
+                          }
+                          }
+                          >Сохранить</Button>
+                      ) : (
+                        <Button
+                        // type="submit"
+                        variant="success"
+                        onClick={(e) => {
+                          handleSubmit(e)
+                        }}
+                        >Отправить</Button>
+                      )
+                    }
                 </Form>
                 ) : (
                 <p>Вопросы отсутствуют</p>
