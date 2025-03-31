@@ -8,6 +8,7 @@ const quizRouter = new Router();
 quizRouter.post('/createQuiz', AuthMiddleware, RoleMiddleware,  QuizController.createQuiz);
 quizRouter.get('/getAllQuizzes', AuthMiddleware, QuizController.readQuizzes);
 quizRouter.post('/GetOneQuiz', QuizController.readOneQuiz);
-quizRouter.post('/SaveQuizChanges', AuthMiddleware, QuizController.SaveQuizChanges)
+quizRouter.post('/SaveQuizChanges', AuthMiddleware, QuizController.SaveQuizChanges);
+quizRouter.post('/SaveQuizResults', QuizController.saveQuizResults)
 
 module.exports = quizRouter;

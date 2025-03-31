@@ -24,15 +24,28 @@ const AnswerVariant = sequelize.define('answer_variant', {
     id: {type:DataTypes.INTEGER(8), primaryKey:true, autoIncrement:true},
     answer: {type:DataTypes.STRING(255), require},
 })
-
+const QuizResult = sequelize.define('quiz_results', {
+    id: {type:DataTypes.INTEGER(8), primaryKey:true, autoIncrement:true},
+})
 Quiz.hasMany(QuizQuestion);
 QuizQuestion.belongsTo(Quiz);
+
 QuizQuestion.hasMany(AnswerVariant);
 AnswerVariant.belongsTo(QuizQuestion);
+
+QuizResult.hasMany(Quiz);
+Quiz.belongsTo(QuizResult);
+
+QuizResult.hasMany(QuizQuestion);
+QuizQuestion.belongsTo(QuizResult);
+
+QuizResult.hasMany(AnswerVariant);
+AnswerVariant.belongsTo(QuizResult)
 
 module.exports = {
     User,
     Quiz,
     QuizQuestion,
-    AnswerVariant
+    AnswerVariant,
+    QuizResult
 }

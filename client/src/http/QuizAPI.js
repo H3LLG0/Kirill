@@ -17,3 +17,9 @@ export const SaveQuizChanges = async (quiz) => {
     
     return message;
 }
+
+export const SaveQuizResults = async (quizResults) => {
+    const {message} = await $host.post('quiz//SaveQuizResults', quizResults);
+
+    return message;
+}

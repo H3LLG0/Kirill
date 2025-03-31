@@ -1,4 +1,4 @@
-import { GetOneQuiz, SaveQuizChanges } from "../http/QuizAPI";
+import { GetOneQuiz, SaveQuizChanges, SaveQuizResults } from "../http/QuizAPI";
 import React, { useContext, useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import  NavTemplate  from "../components/template/NavBar";
@@ -14,7 +14,9 @@ const QuizComponent = observer(() => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { id } = useParams();
-    const [userAnswers, setUserAnswers] = useState({});
+    const [userAnswers, setUserAnswers] = useState({
+      "quizId": id
+    });
 
     useEffect(() => {
         setLoading(true);
@@ -169,8 +171,7 @@ const QuizComponent = observer(() => {
             // Обработчик отправки формы (вне режима редактирования)
             const handleSubmit = (e) => {
               e.preventDefault();
-              console.log("Ответы пользователя:", userAnswers);
-              // Здесь вы можете отправить данные на сервер или обработать их иным способом
+              SaveQuizResults(userAnswers);
             };
 
           return (
