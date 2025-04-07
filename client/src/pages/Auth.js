@@ -26,6 +26,7 @@ const Auth = observer(() => {
                 user.setUser(data);
                 user.setIsAuth(true);
                 navigate(QUIZLIST_ROUTE)
+                window.location.reload()
             }
         } catch(e) {
             console.log(e)

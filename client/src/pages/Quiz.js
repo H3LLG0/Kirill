@@ -1,13 +1,15 @@
 import { GetOneQuiz, SaveQuizChanges, SaveQuizResults } from "../http/QuizAPI";
 import React, { useContext, useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate, data } from "react-router-dom";
 import  NavTemplate  from "../components/template/NavBar";
 import {Button, Container, Form,} from "react-bootstrap"
 import { observer } from "mobx-react-lite";
 import { Context } from "..";
+import { QUIZ_STAT_ROUTE } from "../utils/consts";
 
 const QuizComponent = observer(() => {
 
+    const navigate = useNavigate();
     const {user} = useContext(Context);
     const [isEditing, setIsEditing] = useState(false);
     const [quiz, setQuiz] = useState(null);
@@ -133,34 +135,30 @@ const QuizComponent = observer(() => {
                 });
             };
 
-            const handleCheckboxChange = (questionId, variantId, checked) => {
+            const handleCheckboxChange = (questionId, value, checked) => {
               setUserAnswers((prev) => {
                 const questionAnswers = prev[questionId] || [];
                 if (checked) {
-                  // Добавляем вариант ответа, если он выбран
                   return {
                     ...prev,
-                    [questionId]: [...questionAnswers, variantId]
+                    [questionId]: [...questionAnswers, value]
                   };
                 } else {
-                  // Удаляем вариант ответа, если он снят
                   return {
                     ...prev,
-                    [questionId]: questionAnswers.filter((id) => id !== variantId)
+                    [questionId]: questionAnswers.filter((id) => id !== value)
                   };
                 }
               });
             };
           
-            // Обработчик для radio (один выбор)
-            const handleRadioChange = (questionId, variantId) => {
+            const handleRadioChange = (questionId, value) => {
               setUserAnswers((prev) => ({
                 ...prev,
-                [questionId]: variantId
+                [questionId]: value
               }));
             };
           
-            // Обработчик для range (значение ползунка)
             const handleRangeChange = (questionId, value) => {
               setUserAnswers((prev) => ({
                 ...prev,
@@ -168,11 +166,14 @@ const QuizComponent = observer(() => {
               }));
             };
           
-            // Обработчик отправки формы (вне режима редактирования)
-            const handleSubmit = (e) => {
-              e.preventDefault();
+            const handleSubmit = () => {
+              console.log(userAnswers)
               SaveQuizResults(userAnswers);
             };
+
+            const toStat = () => {
+              navigate(QUIZ_STAT_ROUTE + `/${id}`)
+            }
 
           return (
             <div>
@@ -182,17 +183,27 @@ const QuizComponent = observer(() => {
                 <p>{quiz.description}</p>
                 <Form.Group className="mb-3">
                   {user.isAuth ? (
-                    <Form.Check
-                      type="switch"
-                      id="edit-mode-switch"
-                      label={
-                        isEditing
-                          ? "Режим редактирования включен"
-                          : "Режим редактирования выключен"
-                      }
-                      checked={isEditing}
-                      onChange={handleToggleEdit}
-                    />
+                    <div className="control-bar">
+                      <Form.Check
+                        type="switch"
+                        id="edit-mode-switch"
+                        label={
+                          isEditing
+                            ? "Режим редактирования включен"
+                            : "Режим редактирования выключен"
+                        }
+                        checked={isEditing}
+                        onChange={handleToggleEdit}
+                      />
+                      <div>
+                        <Button
+                          className="mt-2"
+                          onClick={() => {
+                            toStat()
+                          }}
+                        >Результаты опроса</Button>
+                      </div>
+                    </div>
                   ) : (
                     <div></div>
                   )}
@@ -341,7 +352,7 @@ const QuizComponent = observer(() => {
                                       onChange={(e) =>
                                         handleCheckboxChange(
                                           question.id,
-                                          variant.id,
+                                          variant.answer,
                                           e.target.checked
                                         )
                                       }
@@ -356,7 +367,7 @@ const QuizComponent = observer(() => {
                                       label={variant.answer}
                                       name={`question-${question.id}`}
                                       onChange={() =>
-                                        handleRadioChange(question.id, variant.id)
+                                        handleRadioChange(question.id, variant.answer)
                                       }
                                     />
                                   ))
@@ -412,7 +423,7 @@ const QuizComponent = observer(() => {
                       isEditing ? (
                         <Button
                           type="submit"
-                          className="mt-3"
+                          className="mt-3 mb-3"
                           variant="success"
                           onClick={() => {
                             SaveQuizChanges(quiz);
@@ -421,10 +432,11 @@ const QuizComponent = observer(() => {
                           >Сохранить</Button>
                       ) : (
                         <Button
-                        // type="submit"
+                        type="submit"
                         variant="success"
-                        onClick={(e) => {
-                          handleSubmit(e)
+                        className="mb-3"
+                        onClick={() => {
+                          handleSubmit()
                         }}
                         >Отправить</Button>
                       )

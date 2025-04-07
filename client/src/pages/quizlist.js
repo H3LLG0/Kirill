@@ -4,10 +4,10 @@ import Container from "react-bootstrap/esm/Container";
 import Button from "react-bootstrap/esm/Button";
 import { observer } from "mobx-react-lite";
 import { Context } from "..";
-import { GetQuizzes } from "../http/QuizAPI";
+import { DeleteQuiz, GetQuizzes } from "../http/QuizAPI";
 import { Card, Row, Col } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { QUIZ_ROUTE } from "../utils/consts";
+import { QUIZ_ROUTE, QUIZ_CONTRUCTOR_ROUTE } from "../utils/consts";
 
 
 const Quizlist = observer(() => {
@@ -19,11 +19,23 @@ const Quizlist = observer(() => {
             quiz.SetQuizzes(data)
         })
     }, [])
+
+    const deleteQuiz = (id) => {
+       DeleteQuiz(id)
+       window.location.reload();
+    }
     return(
         <div>
            <NavTemplate/>
            <Container className="mt-5">
             <h2>Список всех опросов</h2>
+            <Button
+            variant="success"
+            className="mt-3"
+            onClick={() => {
+                navigate(QUIZ_CONTRUCTOR_ROUTE)
+            }}
+            >Создать опрос</Button>
             <Row className="mt-3">
                     {
                         quiz.Quizzes.map(Element =>
@@ -36,6 +48,14 @@ const Quizlist = observer(() => {
                                     <h4>{Element.title}</h4>
                                     <div>{Element.description}</div>
                                 </Card>
+                                <Button
+                                variant="danger"
+                                className="mt-2"
+                                type="submit"
+                                onClick={() => {
+                                    deleteQuiz(Element.id)
+                                }}
+                                >Удалить</Button>
                             </Col>
                         )
                     }

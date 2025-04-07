@@ -11,9 +11,6 @@ class UserService {
        const hashedPassword = await bcrypt.hash(password, process.env.CRYPT_SALT)
        return hashedPassword;
     }
-    async userCheck() {
-        
-    }
 }
 
 module.exports = new UserService()

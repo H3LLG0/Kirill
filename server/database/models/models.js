@@ -26,21 +26,20 @@ const AnswerVariant = sequelize.define('answer_variant', {
 })
 const QuizResult = sequelize.define('quiz_results', {
     id: {type:DataTypes.INTEGER(8), primaryKey:true, autoIncrement:true},
+    answer: {type: DataTypes.STRING(255), require}
 })
-Quiz.hasMany(QuizQuestion);
+Quiz.hasMany(QuizQuestion, { onDelete: 'CASCADE' });
 QuizQuestion.belongsTo(Quiz);
 
-QuizQuestion.hasMany(AnswerVariant);
+QuizQuestion.hasMany(AnswerVariant, { onDelete: 'CASCADE' });
 AnswerVariant.belongsTo(QuizQuestion);
 
-QuizResult.hasMany(Quiz);
-Quiz.belongsTo(QuizResult);
+Quiz.hasMany(QuizResult, { onDelete: 'CASCADE' });
+QuizResult.belongsTo(Quiz);
 
-QuizResult.hasMany(QuizQuestion);
-QuizQuestion.belongsTo(QuizResult);
+QuizQuestion.hasMany(QuizResult, { onDelete: 'CASCADE' });
+QuizResult.belongsTo(QuizQuestion);
 
-QuizResult.hasMany(AnswerVariant);
-AnswerVariant.belongsTo(QuizResult)
 
 module.exports = {
     User,

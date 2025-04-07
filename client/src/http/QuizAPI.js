@@ -19,7 +19,24 @@ export const SaveQuizChanges = async (quiz) => {
 }
 
 export const SaveQuizResults = async (quizResults) => {
-    const {message} = await $host.post('quiz//SaveQuizResults', quizResults);
+    const {message} = await $host.post('quiz/SaveQuizResults', quizResults);
+
+    return message;
+}
+export const CreateNewQuiz = async (quizData) => {
+    const message = await $authHost.post('quiz/CreateQuiz', quizData);
+
+    return message;
+}
+
+export const GetQuizResults = async (id)=> {
+    const data = await $authHost.post('quiz/GetQuizResults', {id:id})
+
+    return data;
+}
+
+export const DeleteQuiz = async (id) => {
+    const message = await $authHost.post('quiz/DeleteQuiz', {id:id})
 
     return message;
 }

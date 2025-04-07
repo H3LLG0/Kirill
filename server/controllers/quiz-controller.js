@@ -1,5 +1,6 @@
 const {Quiz, QuizQuestion, AnswerVariant, QuizResult} = require('../database/models/models');
-const sequelize = require('sequelize');
+const { Sequelize, Op } = require('sequelize');
+const QuizService = require('../services/quiz-service');
 
 class QuizController {
     async createQuiz(req, res, next) {
@@ -16,7 +17,7 @@ class QuizController {
           
               for (const variant of question.answerVariants) {
                 await AnswerVariant.create({
-                  answer: variant.answer,
+                  answer: variant,
                   quizQuestionId: newQuestion.id,
                 });
               }
@@ -25,6 +26,7 @@ class QuizController {
           
         } catch(e) {
             console.log(e)
+            res.status(500).json({ error: 'Ошибка сервера'});
         }
     }
     async readQuizzes(req, res, next) {
@@ -38,6 +40,7 @@ class QuizController {
         res.json(quizzes)
         } catch(e) {
             console.log(e)
+            res.status(500).json({ error: 'Ошибка сервера'});
         }
     }
     async readOneQuiz(req, res, next) {
@@ -51,10 +54,10 @@ class QuizController {
           }],
           where: {id: id}
       })
-
       res.json(quiz)
       } catch(e) {
         console.log(e);
+        res.status(500).json({ error: 'Ошибка сервера'});
       }
     }
 
@@ -159,19 +162,90 @@ class QuizController {
     }
 
     async saveQuizResults(req, res, next) {
-      const quizResults = req.body;
+      try {
+          const quizResultData = req.body;
+          const quizId = quizResultData.quizId;
 
-      for(const key in quizResults) {
-        const value = quizResults[key]
-        if(key === "quizId") {
+      for (const [questionId, answer] of Object.entries(quizResultData)) {
+        if (questionId === 'quizId') continue;
 
-        } else if(Array.isArray(value)) {
-
+        if (Array.isArray(answer)) {
+            for (const answerVariantId of answer) {
+                await QuizResult.create({
+                    quizId: quizId,
+                    quizQuestionId: parseInt(questionId, 10),
+                    answer: answerVariantId
+                });
+            }
         } else {
-
+            await QuizResult.create({
+                quizId: quizId,
+                quizQuestionId: parseInt(questionId, 10),
+                answer: answer
+            });
         }
+    }
+    res.json({message:"Опрос сохранен"})
+      } catch (e) {
+        console.log(e)
       }
     }
+
+  async GetQuizResults(req, res, next) {
+    try {
+      const quizId = req.body.id;
+
+    const quiz = await Quiz.findByPk(quizId, {
+      include: [
+        {
+          model: QuizQuestion,
+          include: [
+            {
+              model: AnswerVariant,
+            },
+            {
+              model: QuizResult,
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!quiz) {
+      throw new Error('Опрос не найден');
+    }
+
+    const statistics = quiz.quiz_questions.map(QuizService.processQuestionStats);
+
+    res.json({
+      quizId: quiz.id,
+      quizTitle: quiz.title,
+      quizDescription: quiz.description,
+      questions: statistics,
+    })
+
+    } catch(e) {
+      console.log(e);
+      res.status(500).json({ error: 'Ошибка сервера'});
+    }
+  }
+
+  async DeleteQuiz(req, res, next) {
+    try {
+      const quizId = req.body.id
+
+      const quiz = await Quiz.findByPk(quizId);
+      if (!quiz) {
+        res.status(404).json('Опрос не найден');
+      }
+      await quiz.destroy();
+      
+      res.json({ message: 'Опрос удалён'})
+    } catch(e) {
+      console.log(e);
+      res.status(500).json({ error: 'Ошибка сервера'});
+    }
+  }
 }
 
 module.exports = new QuizController();

@@ -3,7 +3,6 @@ const UserService = require('../services/user-service');
 const TokenService = require('../services/token-service');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { Op } = require('sequelize');
 
 
 class UserController {
@@ -79,6 +78,58 @@ class UserController {
                     res.status(200).json({token: tokenNew});
         } catch(e) {
             console.log(e)
+        }
+    }
+
+    async getAllUsers(rea, res, next) {
+        try{
+            const allUsers = await User.findAll({
+                attributes: ['id', 'name', 'surname', 'email', 'type']
+            });
+
+            res.json(allUsers);
+        } catch(e) {
+            console.log(e)
+            res.status(500).json({message:"Ошибка серввера"})
+        }
+    }
+
+    async updateUser(req, res, next) {
+        try{
+            const {id} = req.body;
+
+            const update = await User.update({
+                type:"ADMIN"
+            },
+        {
+            where: {
+                id:id
+            }
+        })
+
+        res.json({message:"Администратор назначен"})
+
+        } catch(e) {
+            console.log(e)
+            res.status(500).json({message:"Ошибка серввера"})
+        }
+    }
+
+    async deleteUser(req, res, next) {
+        try {
+            const {id} = req.body;
+
+            const deleteUser = await User.destroy({
+                where: {
+                    id:id
+                }
+            })
+
+            res.json({message:"пользователь удалён"})
+
+        } catch(e) {
+            console.log(e)
+            res.status(500).json({message:"Ошибка серввера"})
         }
     }
 
