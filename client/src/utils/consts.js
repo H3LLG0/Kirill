@@ -6,3 +6,4 @@ export const QUIZ_ROUTE = '/quiz';
 export const PROFILE_ROUTE = '/profile'
 export const QUIZ_CONTRUCTOR_ROUTE = '/constructor'
 export const QUIZ_STAT_ROUTE = '/stat'
+export const CERTIFICATE = '/certificate'

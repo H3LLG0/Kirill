@@ -27,7 +27,7 @@ const NavTemplate = () => {
         <>
             <Navbar bg="dark" variant="dark">
                 <Container>
-                    <Navbar.Brand>OPROS POPANDOS</Navbar.Brand>
+                    <Navbar.Brand>КОСТРОМА ОПРОС</Navbar.Brand>
                         {
                             user.isAuth ?
                             <Nav>

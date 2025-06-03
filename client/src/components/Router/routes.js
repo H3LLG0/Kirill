@@ -1,4 +1,4 @@
-import { ADDUSER_ROUTE, ADMIN_ROUTE, LOGIN_ROUTE, PROFILE_ROUTE, QUIZ_ROUTE, QUIZLIST_ROUTE, QUIZ_CONTRUCTOR_ROUTE, QUIZ_STAT_ROUTE } from "../../utils/consts";
+import { ADMIN_ROUTE, LOGIN_ROUTE, PROFILE_ROUTE, QUIZ_ROUTE, QUIZLIST_ROUTE, QUIZ_CONTRUCTOR_ROUTE, QUIZ_STAT_ROUTE, CERTIFICATE } from "../../utils/consts";
 import Auth from "../../pages/Auth";
 import Quizlist from "../../pages/quizlist";
 import Quiz from "../../pages/Quiz";
@@ -6,6 +6,7 @@ import Admin from "../../pages/Admin";
 import UserProfile from "../../pages/UserProfile";
 import Constructor from "../../pages/QuizConstructor";
 import QuizStat from "../../pages/QuizStat";
+import Certificate from "../../pages/Certificate";
 
 export const authRoutes = [
     {
@@ -39,5 +40,9 @@ export const publicRoutes = [
     {
         path: QUIZ_ROUTE + '/:id',
         Component: Quiz
+    },
+    {
+        path: CERTIFICATE,
+        Component: Certificate
     }
 ]
