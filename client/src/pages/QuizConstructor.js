@@ -10,6 +10,7 @@ const Constructor = () => {
     const [quizTitle, setquizTitle] = useState('');
     const [quizDescription, setquizDescription] = useState('');
     const [questions, setQuestions] = useState([]);
+    const [image, setImage] = useState(null);
   
     const addQuestion = () => {
       setQuestions([
@@ -21,6 +22,13 @@ const Constructor = () => {
           options: [],
         },
       ]);
+    };
+
+    const handleImageChange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        setImage(file);
+      }
     };
   
     const deleteQuestion = (questionId) => {
@@ -97,15 +105,20 @@ const Constructor = () => {
     };
 
     const Save = () => {
-        const quizData = {
-            title: quizTitle,
-            description: quizDescription,
-            questions: questions.map((question) => ({
-              question: question.text,
-              type: question.type,
-              answerVariants: question.options.map((option) => option.text),
-            })),
-          };
+      const quizData = new FormData();
+      quizData.append('title', quizTitle);
+      quizData.append('description', quizDescription);
+      quizData.append('certificate', image);
+      quizData.append(
+        'questions',
+        JSON.stringify(
+          questions.map((question) => ({
+            question: question.text,
+            type: question.type,
+            answerVariants: question.options.map((option) => option.text),
+          }))
+        )
+      );
       
           if (!quizTitle || !quizDescription) {
             alert('Пожалуйста, заполните название и описание опроса.');
@@ -115,8 +128,8 @@ const Constructor = () => {
             alert('Добавьте хотя бы один вопрос.');
             return;
           }
-
-          CreateNewQuiz(quizData);
+          console.log(quizData)
+          CreateNewQuiz(quizData).catch((e) => {console.log(e)})
     }
 
     return(
@@ -134,6 +147,15 @@ const Constructor = () => {
                             value={quizTitle}
                             onChange={(e) => setquizTitle(e.target.value)}
                         />
+                        </Form.Group>
+                        <Form.Group>
+                            <Form.Label>Загрузите сертификат</Form.Label>
+                            <Form.Control
+                              type='file'
+                              style={{ width: 400 }}
+                              accept="image/*"
+                              onChange={handleImageChange}
+                            />
                         </Form.Group>
                         <Form.Group>
                         <Form.Label>Описание опроса</Form.Label>
@@ -158,12 +180,10 @@ const Constructor = () => {
                                     onChange={(e) => updateQuestionText(question.id, e.target.value)}
                                 />
                                 </Form.Group>
-                            </Col>
-                            <Col xs="auto">
                                 <Button
                                 variant="danger"
                                 onClick={() => deleteQuestion(question.id)}
-                                className="mt-4"
+                                className='mt-2'
                                 >
                                 Удалить вопрос
                                 </Button>
@@ -228,7 +248,7 @@ const Constructor = () => {
                         variant='success'
                         onClick={() => {
                             Save();
-                            navigate(QUIZLIST_ROUTE);
+                            // navigate(QUIZLIST_ROUTE);
                         }}
                     >Сохранить опрос</Button>
                     </div>

@@ -10,6 +10,7 @@ class UserController {
     async login(req, res, next) {
         try {
             const {login, password} = req.body;
+            console.log(login, password)
             const user = await User.findOne({where: {login:login}});
             if(user != null) {
                 if(bcrypt.hashSync(password, process.env.CRYPT_SALT) === user.password) {

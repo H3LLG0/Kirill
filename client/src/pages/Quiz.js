@@ -1,4 +1,4 @@
-import { GetOneQuiz, SaveQuizChanges, SaveQuizResults } from "../http/QuizAPI";
+import { GetOneQuiz, SaveQuizCertificate, SaveQuizChanges, SaveQuizResults } from "../http/QuizAPI";
 import React, { useContext, useState, useEffect } from "react";
 import { useParams, useNavigate, data } from "react-router-dom";
 import  NavTemplate  from "../components/template/NavBar";
@@ -16,9 +16,12 @@ const QuizComponent = observer(() => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { id } = useParams();
+    const [image, setImage] = useState();
+    const [preview, setPreview] = useState(null);
     const [userAnswers, setUserAnswers] = useState({
       "quizId": id
     });
+    const [isComplete, setIsComplete] = useState(false)
 
     useEffect(() => {
         setLoading(true);
@@ -26,6 +29,7 @@ const QuizComponent = observer(() => {
             .then(data => {
                 if (data) {
                     setQuiz(data);
+                    setImage(data.certificate)
                 } else {
                     setError("Опрос не найден");
                 }
@@ -175,6 +179,16 @@ const QuizComponent = observer(() => {
               navigate(QUIZ_STAT_ROUTE + `/${id}`)
             }
 
+            const handleImageChange = (e) => {
+              const file = e.target.files[0]; // Получаем первый загруженный файл
+              if (file) {
+                setImage(file); // Сохраняем файл в состоянии
+                // Создаем URL для предпросмотра изображения
+                const imageUrl = URL.createObjectURL(file);
+                setPreview(imageUrl);
+              }
+            };
+
           return (
             <div>
               <NavTemplate />
@@ -207,8 +221,52 @@ const QuizComponent = observer(() => {
                   ) : (
                     <div></div>
                   )}
+                  {
+                    isEditing ? (
+                      <div className="mt-2">
+                        <h3>Сертификат</h3>
+                        {preview ? (
+                          <div className="mt-3">
+                            <h5>Предпросмотр:</h5>
+                            <img src={preview} alt="Preview" style={{ maxWidth: '300px' }} />
+                            <div>
+                              <Button className="mt-2"
+                              onClick={() => {
+                                const certificate = new FormData();
+                                certificate.append('quizId', id)
+                                certificate.append('newCertificate', image)
+
+                                SaveQuizCertificate(certificate)
+                              }}>Сохранить сертификат</Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div>
+                            <h5>Предпросмотр:</h5>
+                            <img src={'http://localhost:5000/'+ image}/>
+                          </div>
+                        )}
+                        <Form.Control
+                          className="mt-2"
+                          type="file"
+                          style={{ width: 400 }}
+                          onChange={handleImageChange}
+                        />
+                      </div>
+                    ) : (
+                      ''
+                    )
+                  }
                 </Form.Group>
-                <h2>Вопросы:</h2>
+                {
+                  isComplete ? (
+                    <div>
+                      <h5>Благодарим за прохождение опроса</h5>
+                      <img src={'http://localhost:5000/'+ image}/>
+                    </div>
+                  ) : (
+                    <div>
+                      <h2>Вопросы:</h2>
                 {quiz.quiz_questions && quiz.quiz_questions.length > 0 ? (
                   <Form>
                     {quiz.quiz_questions.map((question) => (
@@ -437,6 +495,7 @@ const QuizComponent = observer(() => {
                         className="mb-3"
                         onClick={() => {
                           handleSubmit()
+                          setIsComplete(true)
                         }}
                         >Отправить</Button>
                       )
@@ -445,6 +504,9 @@ const QuizComponent = observer(() => {
                 ) : (
                 <p>Вопросы отсутствуют</p>
                 )}
+                    </div>
+                  )
+                }
             </Container>
         </div>
         );

@@ -18,6 +18,12 @@ export const SaveQuizChanges = async (quiz) => {
     return message;
 }
 
+export const SaveQuizCertificate = async(certificate) => {
+    const {message} = await $authHost.post('quiz/SaveQuizCertificate', certificate)
+
+    return message;
+}
+
 export const SaveQuizResults = async (quizResults) => {
     const {message} = await $host.post('quiz/SaveQuizResults', quizResults);
 

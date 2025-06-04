@@ -1,34 +1,111 @@
 const {Quiz, QuizQuestion, AnswerVariant, QuizResult} = require('../database/models/models');
 const { Sequelize, Op } = require('sequelize');
 const QuizService = require('../services/quiz-service');
+const uuid = require('uuid')
+const path = require('path')
 
 class QuizController {
-    async createQuiz(req, res, next) {
-        try {
-            const quizData = req.body;
-            const quiz = await Quiz.create({ title: quizData.title, description: quizData.description });
+  async createQuiz(req, res, next) {
+    try {
+      // Получаем данные из req.body
+      const { title, description, questions } = req.body;
   
-            for (const question of quizData.questions) {
-              const newQuestion = await QuizQuestion.create({
-                question: question.question,
-                type: question.type,
-                quizId: quiz.id,
-              });
-          
-              for (const variant of question.answerVariants) {
-                await AnswerVariant.create({
-                  answer: variant,
-                  quizQuestionId: newQuestion.id,
-                });
-              }
-            }
-            res.json({message:"Опрос добавлен"})
-          
-        } catch(e) {
-            console.log(e)
-            res.status(500).json({ error: 'Ошибка сервера'});
+      // Получаем файл из req.files
+      const { certificate } = req.files || {};
+  
+      // Проверяем, что файл certificate существует
+      if (!certificate) {
+        const quiz = await Quiz.create({
+          title,
+          description,
+        });
+      } else {
+        const certificateName = uuid.v4() + '.jpg';
+  
+        // Перемещаем файл в папку static
+        await certificate.mv(path.resolve(__dirname, '..', 'static', certificateName));
+    
+        // Создаем запись опроса в базе данных
+        const quiz = await Quiz.create({
+          title,
+          description,
+          certificate: certificateName,
+        });
+      }
+  
+      // Парсим questions, если они пришли как строка JSON
+      let parsedQuestions;
+      try {
+        parsedQuestions = typeof questions === 'string' ? JSON.parse(questions) : questions;
+      } catch (e) {
+        return res.status(400).json({ error: 'Неверный формат данных вопросов' });
+      }
+  
+      // Проверяем, что parsedQuestions — это массив
+      if (!Array.isArray(parsedQuestions)) {
+        return res.status(400).json({ error: 'Поле questions должно быть массивом' });
+      }
+  
+      // Обрабатываем каждый вопрос
+      for (const question of parsedQuestions) {
+        // Проверяем, что answerVariants — это массив
+        if (!Array.isArray(question.answerVariants)) {
+          return res.status(400).json({
+            error: `Поле answerVariants в вопросе "${question.question}" должно быть массивом`,
+          });
         }
+  
+        // Создаем запись вопроса в базе данных
+        const newQuestion = await QuizQuestion.create({
+          question: question.question,
+          type: question.type,
+          quizId: quiz.id,
+        });
+  
+        // Обрабатываем варианты ответа
+        for (const variant of question.answerVariants) {
+          await AnswerVariant.create({
+            answer: variant,
+            quizQuestionId: newQuestion.id,
+          });
+        }
+      }
+  
+      // Возвращаем успешный ответ
+      res.json({ message: 'Опрос добавлен' });
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ error: 'Ошибка сервера' });
     }
+  }
+
+  async SaveQuizCertificate (req, res) {
+    try {
+      const {quizId} = req.body;
+      const {newCertificate} = req.files;
+  
+      if (!newCertificate) {
+        res.status(400).json({ error: 'Файл сертификата обязателен' });
+      }
+  
+      const certificateName = uuid.v4() + '.jpg';
+  
+      await newCertificate.mv(path.resolve(__dirname, '..', 'static', certificateName));
+
+      const quiz = await Quiz.findOne({where: {
+        id:quizId
+      }})
+
+      quiz.certificate = certificateName
+
+      await quiz.save()
+
+    } catch(e) {
+      console.log(e)
+      res.status(500).json({ error: 'Ошибка сервера' });
+    }
+  }
+
     async readQuizzes(req, res, next) {
         try {
           const quizzes = await Quiz.findAll({
