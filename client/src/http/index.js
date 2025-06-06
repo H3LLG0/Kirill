@@ -1,11 +1,11 @@
 import axios from "axios"
 
 const $host = axios.create({
-    baseURL: 'https://drastically-abundant-salamander.cloudpub.ru/api/'
+    baseURL: 'https://cynically-lucid-blesbok.cloudpub.ru/api/'
 })
 
 const $authHost = axios.create({
-    baseURL: 'https://drastically-abundant-salamander.cloudpub.ru/api/'
+    baseURL: 'https://cynically-lucid-blesbok.cloudpub.ru/api/'
 })
 
 
