@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 
 class UserController {
 
-    async login(req, res, next) {
+    async login(req, res) {
         try {
             const {login, password} = req.body;
             console.log(login, password)
@@ -32,7 +32,8 @@ class UserController {
                 res.status(400).json({message:"Неверный логин или пароль"});
             }
         } catch(e) {
-            next(e)
+            console.log(e)
+            res.status(500).json({message:"Ошибка серввера"})
         }
     }
 
@@ -54,7 +55,8 @@ class UserController {
                 res.status(201).json({message:"Регистрация успешна"})
             }
         } catch(e) {
-            next(e)
+            console.log(e)
+            res.status(500).json({message:"Ошибка серввера"})
         }
     }
 
@@ -79,6 +81,7 @@ class UserController {
                     res.status(200).json({token: tokenNew});
         } catch(e) {
             console.log(e)
+            res.status(500).json({message:"Ошибка серввера"})
         }
     }
 
