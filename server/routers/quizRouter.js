@@ -11,6 +11,6 @@ quizRouter.post('/SaveQuizChanges', AuthMiddleware, QuizController.SaveQuizChang
 quizRouter.post('/SaveQuizResults', QuizController.saveQuizResults);
 quizRouter.post('/GetQuizResults', AuthMiddleware, QuizController.GetQuizResults)
 quizRouter.post('/DeleteQuiz', AuthMiddleware, QuizController.DeleteQuiz)
-quizRouter.post('/SaveQuizCertificate', AuthMiddleware, QuizController.SaveQuizCertificate)
+quizRouter.post('/addCertificate', AuthMiddleware, QuizController.addCertificate)
 
 module.exports = quizRouter;

@@ -7,10 +7,9 @@ const jwt = require('jsonwebtoken');
 
 class UserController {
 
-    async login(req, res) {
+    async login(req, res, next) {
         try {
             const {login, password} = req.body;
-            console.log(login, password)
             const user = await User.findOne({where: {login:login}});
             if(user != null) {
                 if(bcrypt.hashSync(password, process.env.CRYPT_SALT) === user.password) {
@@ -32,8 +31,7 @@ class UserController {
                 res.status(400).json({message:"Неверный логин или пароль"});
             }
         } catch(e) {
-            console.log(e)
-            res.status(500).json({message:"Ошибка серввера"})
+            next(e)
         }
     }
 
@@ -55,8 +53,7 @@ class UserController {
                 res.status(201).json({message:"Регистрация успешна"})
             }
         } catch(e) {
-            console.log(e)
-            res.status(500).json({message:"Ошибка серввера"})
+            next(e)
         }
     }
 
@@ -81,7 +78,6 @@ class UserController {
                     res.status(200).json({token: tokenNew});
         } catch(e) {
             console.log(e)
-            res.status(500).json({message:"Ошибка серввера"})
         }
     }
 
