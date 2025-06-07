@@ -21,6 +21,7 @@ const QuizComponent = observer(() => {
     });
     const [image, setImage] = useState(null);
     const [preview, setPreview] = useState(null);
+    const [complete, setComplete] = useState(false)
 
     useEffect(() => {
         setLoading(true);
@@ -172,6 +173,7 @@ const QuizComponent = observer(() => {
             const handleSubmit = () => {
               console.log(userAnswers)
               SaveQuizResults(userAnswers);
+              setComplete(true)
             };
 
             const toStat = () => {
@@ -196,6 +198,8 @@ const QuizComponent = observer(() => {
                 addCertificate(formData)
               }
             }
+
+
 
           return (
             <div>
@@ -234,7 +238,6 @@ const QuizComponent = observer(() => {
                   user.isAuth ? (
                     <div>
                       {
-                        quiz.certificate ? (
                           <div>
                             {
                               isEditing ? (
@@ -268,249 +271,256 @@ const QuizComponent = observer(() => {
                               )
                             }
                           </div>
-                        ) : (
-                          'сертификат не добавлен'
-                        )
                       }
                     </div>
                   ) : (
                     ''
                   )
                 }
-                <h2>Вопросы:</h2>
+                <h2>{complete ? ('Благодарим за прохождение') : ('Вопросы:')}</h2>
                 {quiz.quiz_questions && quiz.quiz_questions.length > 0 ? (
-                  <Form>
-                    {quiz.quiz_questions.map((question) => (
-                      <div key={question.id} className="mb-4">
-                        {isEditing ? (
-                          <div>
-                            <Form.Group className="mb-3">
-                              <Form.Label>Вопрос:</Form.Label>
-                              <Form.Control
-                                type="text"
-                                value={question.question}
-                                onChange={(e) =>
-                                  handleQuestionChange(question.id, e.target.value)
-                                }
-                                name={`question-text-${question.id}`}
-                              />
-                              <Form.Label className="mt-2">Тип вопроса:</Form.Label>
-                              <Form.Control
-                                as="select"
-                                value={question.type}
-                                onChange={(e) =>
-                                  handleQuestionTypeChange(question.id, e.target.value)
-                                }
-                                name={`question-type-${question.id}`}
-                              >
-                                <option value="checkbox">Checkbox</option>
-                                <option value="radio">Radio</option>
-                                <option value="range">Range</option>
-                              </Form.Control>
-                            </Form.Group>
-                            <div>
-                            <Button
-                                variant="danger"
-                                onClick={() => handleDeleteQuestion(question.id)}
-                              >
-                                Удалить вопрос
-                              </Button>
-                              <Button
-                                onClick={() =>
-                                    handleAddAnswerVariant(question.id)
-                                }
-                                style={{marginLeft:10}}
-                                >
-                                Добавть вариант ответа
-                                </Button>
-                            </div>
-                          </div>
-                        ) : (
-                          <h3>{question.question}</h3>
-                        )}
-                        {question.answer_variants && question.answer_variants.length > 0 ? (
-                          <div>
+                  <div>
+                    {
+                      complete ? (
+                        <div>
+                          <img src={SERVERURL+`/${quiz.certificate}`}/>
+                        </div>
+                      ) : (
+                        <Form>
+                        {quiz.quiz_questions.map((question) => (
+                          <div key={question.id} className="mb-4">
                             {isEditing ? (
                               <div>
-                                {question.type === "range" ? (
-                                  question.answer_variants.length === 2 ? (
-                                    <div>
-                                      <Form.Group className="mb-3">
-                                        <Form.Label>Минимальное значение:</Form.Label>
-                                        <Form.Control
-                                          type="number"
-                                          defaultValue={parseInt(
-                                            question.answer_variants[0].answer,
-                                            10
-                                          )}
-                                          name={`variant-min-${question.id}`}
-                                        />
-                                      </Form.Group>
-                                      <Form.Group className="mb-3">
-                                        <Form.Label>Максимальное значение:</Form.Label>
-                                        <Form.Control
-                                          type="number"
-                                          defaultValue={parseInt(
-                                            question.answer_variants[1].answer,
-                                            10
-                                          )}
-                                          name={`variant-max-${question.id}`}
-                                        />
-                                      </Form.Group>
-                                    </div>
-                                  ) : (
-                                    <div>
-                                      <Form.Group className="mb-3">
-                                        <Form.Label>Минимальное значение:</Form.Label>
-                                        <Form.Control
-                                          type="number"
-                                          name={`variant-min-${question.id}`}
-                                        />
-                                      </Form.Group>
-                                      <Form.Group className="mb-3">
-                                        <Form.Label>Максимальное значение:</Form.Label>
-                                        <Form.Control
-                                          type="number"
-                                          name={`variant-max-${question.id}`}
-                                        />
-                                      </Form.Group>
-                                    </div>
-                                  )
-                                ) : (
-                                  question.answer_variants.map((variant) => (
-                                    <Form.Group key={variant.id} className="mb-3">
-                                      <Form.Label>Вариант ответа:</Form.Label>
-                                      <Form.Control
-                                        type="text"
-                                        value={variant.answer}
-                                        onChange={(e) =>
-                                            handleAnswerVariantChange(
-                                            question.id,
-                                            variant.id,
-                                            e.target.value
-                                            )
-                                        }
-                                        name={`variant-${variant.id}`}
-                                        />
-                                        <Button
-                                            variant="danger"
-                                            onClick={() =>
-                                                handleDeleteAnswerVariant(
-                                                question.id,
-                                                variant.id
-                                                )
-                                            }
-                                            className="mt-2"
-                                            >
-                                            Удалить
-                                        </Button>
-                                    </Form.Group>
-                                  ))
-                                )}
+                                <Form.Group className="mb-3">
+                                  <Form.Label>Вопрос:</Form.Label>
+                                  <Form.Control
+                                    type="text"
+                                    value={question.question}
+                                    onChange={(e) =>
+                                      handleQuestionChange(question.id, e.target.value)
+                                    }
+                                    name={`question-text-${question.id}`}
+                                  />
+                                  <Form.Label className="mt-2">Тип вопроса:</Form.Label>
+                                  <Form.Control
+                                    as="select"
+                                    value={question.type}
+                                    onChange={(e) =>
+                                      handleQuestionTypeChange(question.id, e.target.value)
+                                    }
+                                    name={`question-type-${question.id}`}
+                                  >
+                                    <option value="checkbox">Checkbox</option>
+                                    <option value="radio">Radio</option>
+                                    <option value="range">Range</option>
+                                  </Form.Control>
+                                </Form.Group>
+                                <div>
+                                <Button
+                                    variant="danger"
+                                    onClick={() => handleDeleteQuestion(question.id)}
+                                  >
+                                    Удалить вопрос
+                                  </Button>
+                                  <Button
+                                    onClick={() =>
+                                        handleAddAnswerVariant(question.id)
+                                    }
+                                    style={{marginLeft:10}}
+                                    >
+                                    Добавть вариант ответа
+                                    </Button>
+                                </div>
                               </div>
                             ) : (
+                              <h3>{question.question}</h3>
+                            )}
+                            {question.answer_variants && question.answer_variants.length > 0 ? (
                               <div>
-                                {question.type === "checkbox" ? (
-                                  question.answer_variants.map((variant) => (
-                                    <Form.Check
-                                      key={variant.id}
-                                      type="checkbox"
-                                      id={`checkbox-${variant.id}`}
-                                      label={variant.answer}
-                                      name={`question-${question.id}`}
-                                      onChange={(e) =>
-                                        handleCheckboxChange(
-                                          question.id,
-                                          variant.answer,
-                                          e.target.checked
-                                        )
-                                      }
-                                    />
-                                  ))
-                                ) : question.type === "radio" ? (
-                                  question.answer_variants.map((variant) => (
-                                    <Form.Check
-                                      key={variant.id}
-                                      type="radio"
-                                      id={`radio-${variant.id}`}
-                                      label={variant.answer}
-                                      name={`question-${question.id}`}
-                                      onChange={() =>
-                                        handleRadioChange(question.id, variant.answer)
-                                      }
-                                    />
-                                  ))
-                                ) : question.type === "range" ? (
-                                  question.answer_variants.length === 2 ? (
-                                    <Form.Group>
-                                      <Form.Label>
-                                        Выберите значение от{" "}
-                                        {question.answer_variants[0].answer} до{" "}
-                                        {question.answer_variants[1].answer}
-                                      </Form.Label>
-                                      <div className="d-flex justify-content-between">
-                                        <span>{question.answer_variants[0].answer}</span>
-                                        <span>{question.answer_variants[1].answer}</span>
-                                      </div>
-                                      <Form.Control
-                                        type="range"
-                                        min={parseInt(
-                                          question.answer_variants[0].answer,
-                                          10
-                                        )}
-                                        max={parseInt(
-                                          question.answer_variants[1].answer,
-                                          10
-                                        )}
-                                        name={`question-${question.id}`}
-                                        onChange={(e) => {
-                                          handleRangeChange(question.id, e.target.value);
-                                        }}
-                                      />
-                                    </Form.Group>
-                                  ) : (
-                                    <p>
-                                      Для вопроса типа range требуется ровно два варианта
-                                      ответа (min и max).
-                                    </p>
-                                  )
+                                {isEditing ? (
+                                  <div>
+                                    {question.type === "range" ? (
+                                      question.answer_variants.length === 2 ? (
+                                        <div>
+                                          <Form.Group className="mb-3">
+                                            <Form.Label>Минимальное значение:</Form.Label>
+                                            <Form.Control
+                                              type="number"
+                                              defaultValue={parseInt(
+                                                question.answer_variants[0].answer,
+                                                10
+                                              )}
+                                              name={`variant-min-${question.id}`}
+                                            />
+                                          </Form.Group>
+                                          <Form.Group className="mb-3">
+                                            <Form.Label>Максимальное значение:</Form.Label>
+                                            <Form.Control
+                                              type="number"
+                                              defaultValue={parseInt(
+                                                question.answer_variants[1].answer,
+                                                10
+                                              )}
+                                              name={`variant-max-${question.id}`}
+                                            />
+                                          </Form.Group>
+                                        </div>
+                                      ) : (
+                                        <div>
+                                          <Form.Group className="mb-3">
+                                            <Form.Label>Минимальное значение:</Form.Label>
+                                            <Form.Control
+                                              type="number"
+                                              name={`variant-min-${question.id}`}
+                                            />
+                                          </Form.Group>
+                                          <Form.Group className="mb-3">
+                                            <Form.Label>Максимальное значение:</Form.Label>
+                                            <Form.Control
+                                              type="number"
+                                              name={`variant-max-${question.id}`}
+                                            />
+                                          </Form.Group>
+                                        </div>
+                                      )
+                                    ) : (
+                                      question.answer_variants.map((variant) => (
+                                        <Form.Group key={variant.id} className="mb-3">
+                                          <Form.Label>Вариант ответа:</Form.Label>
+                                          <Form.Control
+                                            type="text"
+                                            value={variant.answer}
+                                            onChange={(e) =>
+                                                handleAnswerVariantChange(
+                                                question.id,
+                                                variant.id,
+                                                e.target.value
+                                                )
+                                            }
+                                            name={`variant-${variant.id}`}
+                                            />
+                                            <Button
+                                                variant="danger"
+                                                onClick={() =>
+                                                    handleDeleteAnswerVariant(
+                                                    question.id,
+                                                    variant.id
+                                                    )
+                                                }
+                                                className="mt-2"
+                                                >
+                                                Удалить
+                                            </Button>
+                                        </Form.Group>
+                                      ))
+                                    )}
+                                  </div>
                                 ) : (
-                                  <p>Тип вопроса не поддерживается</p>
+                                  <div>
+                                    {question.type === "checkbox" ? (
+                                      question.answer_variants.map((variant) => (
+                                        <Form.Check
+                                          key={variant.id}
+                                          type="checkbox"
+                                          id={`checkbox-${variant.id}`}
+                                          label={variant.answer}
+                                          name={`question-${question.id}`}
+                                          onChange={(e) =>
+                                            handleCheckboxChange(
+                                              question.id,
+                                              variant.answer,
+                                              e.target.checked
+                                            )
+                                          }
+                                        />
+                                      ))
+                                    ) : question.type === "radio" ? (
+                                      question.answer_variants.map((variant) => (
+                                        <Form.Check
+                                          key={variant.id}
+                                          type="radio"
+                                          id={`radio-${variant.id}`}
+                                          label={variant.answer}
+                                          name={`question-${question.id}`}
+                                          onChange={() =>
+                                            handleRadioChange(question.id, variant.answer)
+                                          }
+                                        />
+                                      ))
+                                    ) : question.type === "range" ? (
+                                      question.answer_variants.length === 2 ? (
+                                        <Form.Group>
+                                          <Form.Label>
+                                            Выберите значение от{" "}
+                                            {question.answer_variants[0].answer} до{" "}
+                                            {question.answer_variants[1].answer}
+                                          </Form.Label>
+                                          <div className="d-flex justify-content-between">
+                                            <span>{question.answer_variants[0].answer}</span>
+                                            <span>{question.answer_variants[1].answer}</span>
+                                          </div>
+                                          <Form.Control
+                                            type="range"
+                                            min={parseInt(
+                                              question.answer_variants[0].answer,
+                                              10
+                                            )}
+                                            max={parseInt(
+                                              question.answer_variants[1].answer,
+                                              10
+                                            )}
+                                            name={`question-${question.id}`}
+                                            onChange={(e) => {
+                                              handleRangeChange(question.id, e.target.value);
+                                            }}
+                                          />
+                                        </Form.Group>
+                                      ) : (
+                                        <p>
+                                          Для вопроса типа range требуется ровно два варианта
+                                          ответа (min и max).
+                                        </p>
+                                      )
+                                    ) : (
+                                      <p>Тип вопроса не поддерживается</p>
+                                    )}
+                                  </div>
                                 )}
-                              </div>
+                            </div>
+                            ) : (
+                            <p></p>
                             )}
                         </div>
-                        ) : (
-                        <p></p>
-                        )}
-                    </div>
-                    ))}
-                    <div>
-                        {isEditing ? (<Button onClick={handleAddQuestion}>Добавить вопрос</Button>) : (<div></div>)}
-                    </div>
-                    {
-                      isEditing ? (
-                        <Button
-                          type="submit"
-                          className="mt-3 mb-3"
-                          variant="success"
-                          onClick={() => {
-                            SaveQuizChanges(quiz);
-                          }
-                          }
-                          >Сохранить</Button>
-                      ) : (
-                        <Button
-                        type="submit"
-                        variant="success"
-                        className="mb-3"
-                        onClick={() => {
-                          handleSubmit()
-                        }}
-                        >Отправить</Button>
+                        ))}
+                        <div>
+                            {isEditing ? (<Button onClick={handleAddQuestion}>Добавить вопрос</Button>) : (<div></div>)}
+                        </div>
+                        {
+                          isEditing ? (
+                            <Button
+                              type="submit"
+                              className="mt-3 mb-3"
+                              variant="success"
+                              onClick={() => {
+                                SaveQuizChanges(quiz);
+                              }
+                              }
+                              >Сохранить</Button>
+                          ) : (
+                            <Button
+                            type="submit"
+                            variant="success"
+                            className="mb-3"
+                            onClick={() => {
+                              handleSubmit()
+                            }}
+                            >Отправить</Button>
+                          )
+                        }
+                    </Form>
                       )
                     }
-                </Form>
+                  </div>
                 ) : (
                 <p>Вопросы отсутствуют</p>
                 )}
