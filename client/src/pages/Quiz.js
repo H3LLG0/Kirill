@@ -1,11 +1,11 @@
-import { GetOneQuiz, SaveQuizChanges, SaveQuizResults } from "../http/QuizAPI";
+import { addCertificate, GetOneQuiz, SaveQuizChanges, SaveQuizResults } from "../http/QuizAPI";
 import React, { useContext, useState, useEffect } from "react";
-import { useParams, useNavigate, data } from "react-router-dom";
+import { useParams, useNavigate} from "react-router-dom";
 import  NavTemplate  from "../components/template/NavBar";
 import {Button, Container, Form,} from "react-bootstrap"
 import { observer } from "mobx-react-lite";
 import { Context } from "..";
-import { QUIZ_STAT_ROUTE } from "../utils/consts";
+import { QUIZ_STAT_ROUTE, SERVERURL } from "../utils/consts";
 
 const QuizComponent = observer(() => {
 
@@ -19,6 +19,8 @@ const QuizComponent = observer(() => {
     const [userAnswers, setUserAnswers] = useState({
       "quizId": id
     });
+    const [image, setImage] = useState(null);
+    const [preview, setPreview] = useState(null);
 
     useEffect(() => {
         setLoading(true);
@@ -26,6 +28,7 @@ const QuizComponent = observer(() => {
             .then(data => {
                 if (data) {
                     setQuiz(data);
+
                 } else {
                     setError("Опрос не найден");
                 }
@@ -175,6 +178,25 @@ const QuizComponent = observer(() => {
               navigate(QUIZ_STAT_ROUTE + `/${id}`)
             }
 
+            const handleImageChange = (e) => {
+              const file = e.target.files[0];
+              if (file) {
+                setImage(file);
+                const imageUrl = URL.createObjectURL(file);
+                setPreview(imageUrl);
+              }
+            };
+
+            const handleSubmitImage = (e) => {
+              e.preventDefault();
+              const formData = new FormData();
+              formData.append('image', image);
+              formData.append('id', quiz.id)
+              if(image) {
+                addCertificate(formData)
+              }
+            }
+
           return (
             <div>
               <NavTemplate />
@@ -205,9 +227,56 @@ const QuizComponent = observer(() => {
                       </div>
                     </div>
                   ) : (
-                    <div></div>
+                    ''
                   )}
                 </Form.Group>
+                {
+                  user.isAuth ? (
+                    <div>
+                      {
+                        quiz.certificate ? (
+                          <div>
+                            {
+                              isEditing ? (
+                                <div>
+                                  <h2>Сертификат</h2>
+                                  <Form onSubmit={handleSubmitImage}>
+                                    <Form.Group controlId="formFile" className="mb-3">
+                                      <Form.Label>Выберите изображение</Form.Label>
+                                      <Form.Control
+                                        type="file"
+                                        accept="image/*" // Ограничиваем выбор только изображениями
+                                        onChange={handleImageChange}
+                                      />
+                                    </Form.Group>
+                                    <Button variant="primary" type="submit">
+                                      Отправить
+                                    </Button>
+                                  </Form>
+                                  {preview ? (
+                                    <div className="mt-3">
+                                      <h5>Предпросмотр:</h5>
+                                      <img src={preview} alt="Preview" style={{ maxWidth: '300px' }} />
+                                    </div>
+                                  ) : (<img src={SERVERURL+`/${quiz.certificate}`}/>)}
+                                </div>
+                              ) : (
+                                <div>
+                                  <h2>Сертификат</h2>
+                                  <img src={SERVERURL+`/${quiz.certificate}`}/>
+                                </div>
+                              )
+                            }
+                          </div>
+                        ) : (
+                          'сертификат не добавлен'
+                        )
+                      }
+                    </div>
+                  ) : (
+                    ''
+                  )
+                }
                 <h2>Вопросы:</h2>
                 {quiz.quiz_questions && quiz.quiz_questions.length > 0 ? (
                   <Form>

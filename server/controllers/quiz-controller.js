@@ -1,8 +1,35 @@
 const {Quiz, QuizQuestion, AnswerVariant, QuizResult} = require('../database/models/models');
 const { Sequelize, Op } = require('sequelize');
 const QuizService = require('../services/quiz-service');
+const uuid = require('uuid');
+const path = require('path')
 
 class QuizController {
+    async addCertificate(req, res) {
+      try {
+        const {id} = req.body;
+        const {image} = req.files;
+
+        const quiz = await Quiz.findOne({
+          attributes: ['id', 'certificate'],
+          where: {
+          id:id
+        }})
+
+        let certificateName = uuid.v4() + '.jpg';
+
+        image.mv(path.resolve(__dirname, '..', 'static', certificateName))
+
+        quiz.certificate = certificateName;
+
+        await quiz.save();
+
+        res.json({message:"сертификат добавлен"})
+
+      } catch (error) {
+        console.log(error)
+      }
+    }
     async createQuiz(req, res, next) {
         try {
             const quizData = req.body;

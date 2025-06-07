@@ -40,3 +40,9 @@ export const DeleteQuiz = async (id) => {
 
     return message;
 }
+
+export const addCertificate = async (data) => {
+    const message = await $authHost.post('quiz/addCertificate', data)
+
+    return message;
+}

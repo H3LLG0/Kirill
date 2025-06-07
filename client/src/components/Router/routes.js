@@ -6,8 +6,6 @@ import Admin from "../../pages/Admin";
 import UserProfile from "../../pages/UserProfile";
 import Constructor from "../../pages/QuizConstructor";
 import QuizStat from "../../pages/QuizStat";
-import Certificate from "../../pages/Certificate";
-
 export const authRoutes = [
     {
         path: QUIZLIST_ROUTE,
@@ -40,9 +38,5 @@ export const publicRoutes = [
     {
         path: QUIZ_ROUTE + '/:id',
         Component: Quiz
-    },
-    {
-        path: CERTIFICATE,
-        Component: Certificate
     }
 ]

@@ -13,7 +13,8 @@ const User = sequelize.define('user', {
 const Quiz = sequelize.define('quiz',{
     id: {type:DataTypes.INTEGER(8), primaryKey:true, autoIncrement:true},
     title: {type:DataTypes.STRING(255), require},
-    description: {type:DataTypes.STRING(1000), require}
+    description: {type:DataTypes.STRING(1000), require},
+    certificate: {type:DataTypes.STRING(255)}
 })
 const QuizQuestion = sequelize.define('quiz_question', {
     id: {type:DataTypes.INTEGER(8), primaryKey:true, autoIncrement:true},
