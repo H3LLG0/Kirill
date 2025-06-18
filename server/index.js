@@ -12,8 +12,6 @@ const PORT = process.env.PORT;
 const app = express();
 
 
-app.use(cors(corsOptions));
-
 const corsOptions = {
     origin: 'https://excellently-spruce-flycatcher.cloudpub.ru',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
