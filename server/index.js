@@ -10,8 +10,15 @@ const path = require('path')
 const PORT = process.env.PORT;
 
 const app = express();
+const corsOptions = {
+    origin: 'https://excellently-spruce-flycatcher.cloudpub.ru/',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'], 
+    credentials: true,
+    maxAge: 86400
+  };
 
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.static(path.resolve(__dirname, 'static')));
 app.use(expressFileUploud({}))
 app.use(express.json());
